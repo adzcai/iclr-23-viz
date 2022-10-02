@@ -1,8 +1,8 @@
 # iclr-23-viz
 
-Visualization of paper submissions for the [ICLR 2023](https://openreview.net/group?id=ICLR.cc/2023/Conference).
+Visualization of paper submissions for the [ICLR 2023](https://openreview.net/group?id=ICLR.cc/2023/Conference) conference.
 
-The visualization was made by
+The visualization was made by:
 
 1. Fetching data from 
 1. Passing the paper title, keywords, abstract, and category through the [SPECTER](https://github.com/allenai/specter) language model
