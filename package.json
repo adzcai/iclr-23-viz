@@ -2,6 +2,8 @@
 	"name": "iclr-23-viz",
 	"version": "0.0.1",
 	"private": true,
+	"author": "Alexander Cai <alexandercai@outlook.com>",
+	"repository": "https://github.com/adzcai/iclr-23-viz",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
