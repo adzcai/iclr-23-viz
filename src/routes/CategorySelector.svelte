@@ -17,6 +17,12 @@
       [category]: counts[category] + 1,
     };
   }, initialState);
+
+  $: anyOn = Object.values(selectedCategories).some(Boolean);
+
+  function handleToggle() {
+    categories.forEach((category) => (selectedCategories[category] = !anyOn));
+  }
 </script>
 
 <div class="selector-container">
@@ -45,6 +51,11 @@
           </label>
         {/each}
       </div>
+      <div style="margin-top: 0.5rem;">
+        <button on:click={handleToggle}>
+          {anyOn ? 'Clear all' : 'Check all'}
+        </button>
+      </div>
     </div>
   </details>
 </div>
@@ -69,7 +80,7 @@
   .checkboxes-container {
     display: flex;
     flex-direction: column;
-    max-height: 20rem;
+    max-height: 24rem;
     overflow: auto;
     background-color: #ffffff66;
     border-radius: 0.5rem;

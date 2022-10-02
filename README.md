@@ -1,27 +1,23 @@
-# create-svelte
+# iclr-23-viz
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+Visualization of paper submissions for the [ICLR 2023](https://openreview.net/group?id=ICLR.cc/2023/Conference).
 
-## Creating a project
+The visualization was made by
 
-If you're seeing this, you've probably already done this step. Congrats!
+1. Fetching data from 
+1. Passing the paper title, keywords, abstract, and category through the [SPECTER](https://github.com/allenai/specter) language model
+2. Using the first token as the sequence embedding
+3. Running TSNE to reduce down to 2 dimensions. (The plots look nicer and less scattered than PCA.)
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+Powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+Deployed with [Vercel](https://vercel.com/).
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
+npm install
 npm run dev -- --open
 ```
 
@@ -34,5 +30,3 @@ npm run build
 ```
 
 You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
