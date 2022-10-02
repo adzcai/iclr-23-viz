@@ -1,76 +1,108 @@
 <script lang="ts">
-  interface Paper {
-    title: string;
-    keywords: string[];
-    tldr: string | null;
-    abstract: string;
-    category: string | null;
-    supplementary_material: string | null;
-    x: number;
-    y: number;
-  }
-
   let components: {
     svg: SVGSVGElement | null;
   } = {
     svg: null,
   };
 
-  export let data: {
-    papers: Paper[];
-    colors: Record<string, string>;
-    defaultColor: string;
-  };
+  export let data: Paper[];
 
-  import { zoom, type D3ZoomEvent } from 'd3-zoom';
+  import { zoom, zoomIdentity, ZoomTransform, type D3ZoomEvent } from 'd3-zoom';
   import { scaleLinear } from 'd3-scale';
   import { select } from 'd3-selection';
   import { onMount } from 'svelte';
+  import HoverTitle from './HoverTitle.svelte';
+  import type { Paper } from './+page';
 
-  const width = 800;
-  const height = 600;
+  let width: number;
+  let height: number;
 
-  $: zoomTransform = 'translate(0 0)';
+  const numCategories = Math.max(...data.map((paper) => paper.category));
+
+  const xCoords = data.map((paper) => paper.x);
+  const yCoords = data.map((paper) => paper.y);
+  const chartMargin = 5;
+  const [xMin, xMax] = [
+    Math.min(...xCoords) - chartMargin,
+    Math.max(...xCoords) + chartMargin,
+  ];
+  const [yMin, yMax] = [
+    Math.min(...yCoords) - chartMargin,
+    Math.max(...yCoords) + chartMargin,
+  ];
+
+  $: xScale = scaleLinear([xMin, xMax], [-width / 2, width / 2]);
+  $: yScale = scaleLinear([yMin, yMax], [height / 2, -height / 2]);
+
+  let zoomTransform: ZoomTransform = zoomIdentity;
+  $: zoomString = zoomTransform as unknown as string;
+
+  const strokeWidth = 15;
 
   // set up zoom
   onMount(() => {
-    const zoomEffect = zoom<SVGSVGElement, null>().on(
-      'zoom',
-      (event: D3ZoomEvent<SVGSVGElement, null>) => {
-        zoomTransform = event.transform as unknown as string;
-      }
-    );
+    const zoomEffect = zoom<SVGSVGElement, null>()
+      .scaleExtent([0.5, 10])
+      .on('zoom', (event: D3ZoomEvent<SVGSVGElement, null>) => {
+        zoomTransform = event.transform;
+      });
 
     select<SVGSVGElement, null>(components.svg!).call(zoomEffect);
   });
 
-  const margin = 20;
-  const xScale = scaleLinear([-5, 5], [-width / 2, width / 2]);
-  const yScale = scaleLinear([-5, 5], [height / 2, -height / 2]);
+  let hoveredIndex: number | null = null;
+  let titleActive = false;
+
+  $: margin = 2 + strokeWidth * zoomTransform.k;
+
+  function delayRelease() {
+    setTimeout(() => {
+      if (!titleActive) {
+        hoveredIndex = null;
+      }
+    }, 100);
+  }
 </script>
 
+<svelte:window bind:innerWidth={width} bind:innerHeight={height} />
+
 <svg {width} {height} bind:this={components.svg}>
-  <g transform={zoomTransform}>
+  <g transform={zoomString}>
     <g
       fill="none"
       stroke-linecap="round"
-      stroke-width={5}
+      stroke-width={strokeWidth}
       transform="translate({width / 2} {height / 2})"
     >
-      {#each data.papers as paper}
-        <path
-          d="M {paper.x},{paper.y} h 0"
-          stroke={paper.category
-            ? data.colors[paper.category]
-            : data.defaultColor}
-        />
+      {#each data as paper, index}
+        <a href={paper.href}>
+          <path
+            d="M {xScale(paper.x)},{yScale(paper.y)} h 0"
+            stroke="hsl({(360 * paper.category) / numCategories}, 70%, 70%)"
+            cursor="pointer"
+            on:mouseenter={() => {
+              hoveredIndex = index;
+              titleActive = true;
+            }}
+            on:mouseleave={() => {
+              titleActive = false;
+              delayRelease();
+            }}
+          />
+        </a>
       {/each}
     </g>
   </g>
 </svg>
 
-<style>
-  svg {
-    border: 1px dashed pink;
-  }
-</style>
+{#if hoveredIndex !== null}
+  <HoverTitle
+    x={zoomTransform.applyX(width / 2 + xScale(data[hoveredIndex].x))}
+    y={zoomTransform.applyY(height / 2 + yScale(data[hoveredIndex].y))}
+    {margin}
+    title={data[hoveredIndex].title}
+    description={data[hoveredIndex].tldr || data[hoveredIndex].abstract}
+    bind:titleActive
+    {delayRelease}
+  />
+{/if}
