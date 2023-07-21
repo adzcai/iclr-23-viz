@@ -4,6 +4,7 @@
   import Chart from './Chart.svelte';
   import CategorySelector from './CategorySelector.svelte';
   import './styles.css';
+  import Footer from './Footer.svelte';
 
   const categories = [
     'General Machine Learning (ie none of the above)',
@@ -48,22 +49,4 @@
   {papers}
 />
 
-<p class="info">
-  Built by Alex Cai with
-  <a href="https://d3js.org/">D3</a>
-  and
-  <a href="https://kit.svelte.dev/">SvelteKit</a>
-  &copy; {new Date().getFullYear()}
-  <br />
-  I am not affiliated with ICLR.
-</p>
-
-<style>
-  .info {
-    position: absolute;
-    right: 2rem;
-    bottom: 2rem;
-    text-align: right;
-    margin: 0px;
-  }
-</style>
+<Footer />

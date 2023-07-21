@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Paper } from './+page';
+  import type { Paper } from "./+page";
 
   export let papers: Paper[];
   export let categories: string[];
@@ -22,6 +22,34 @@
 
   function handleToggle() {
     categories.forEach((category) => (selectedCategories[category] = !anyOn));
+  }
+
+  function updateUrlQuery(selections: Record<string, boolean>) {
+    if (typeof window === "undefined") return;
+
+    const url = new URL(window.location.toString());
+
+    if (Object.values(selections).every(Boolean)) {
+      url.search = "";
+    } else {
+      Object.keys(selections)
+        .filter((k) => selections[k])
+        .forEach((category) => url.searchParams.append("categories", category));
+    }
+    window.history.replaceState({}, "", url);
+  }
+
+  $: updateUrlQuery(selectedCategories);
+
+  // load initial selected categories from URL on first render
+  if (typeof window !== "undefined") {
+    const url = new URL(window.location.toString());
+    const urlCategories = url.searchParams.getAll("categories");
+    if (urlCategories.length > 0) {
+      categories.forEach((category) => {
+        selectedCategories[category] = urlCategories.includes(category);
+      });
+    }
   }
 </script>
 
@@ -53,7 +81,7 @@
       </div>
       <div style="margin-top: 0.5rem;">
         <button on:click={handleToggle}>
-          {anyOn ? 'Clear all' : 'Check all'}
+          {anyOn ? "Clear all" : "Check all"}
         </button>
       </div>
     </div>
